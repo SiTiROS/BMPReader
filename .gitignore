@@ -1,0 +1,13 @@
+# Visual Studio 2015 user specific files
+.vs/
+*.vsconfig
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+
+
+//custom filters
+x64/
+x32/
+Debug/
+ConsoleApplication1/
