@@ -1,4 +1,4 @@
-#include "BMPReader.h"
+п»ї#include "BMPReader.h"
 
 	bool BMPReader::openBMP(const std::string& fileName)
 	{
@@ -6,27 +6,27 @@
 
 		if (!bmpFile)
 		{
-			std::cout << "Ошибка открытия файла: " << fileName << std::endl;
+			std::cout << "РћС€РёР±РєР° РѕС‚РєСЂС‹С‚РёСЏ С„Р°Р№Р»Р°: " << fileName << std::endl;
 			return false;
 		}
 
-		// Чтение заголовков BMP
+		// Р§С‚РµРЅРёРµ Р·Р°РіРѕР»РѕРІРєРѕРІ BMP
 		bmpFile.read(reinterpret_cast<char*>(&fileHeader), sizeof(BITMAPFILEHEADER));
 		bmpFile.read(reinterpret_cast<char*>(&infoHeader), sizeof(BITMAPINFOHEADER));
 
-		// Проверка формата (24 или 32 бита)
+		// РџСЂРѕРІРµСЂРєР° С„РѕСЂРјР°С‚Р° (24 РёР»Рё 32 Р±РёС‚Р°)
 		if (infoHeader.biBitCount != 24 && infoHeader.biBitCount != 32)
 		{
-			std::cout << "Неподдерживаемый формат BMP. Поддерживаются только 24 и 32 битные изображения." << std::endl;
+			std::cout << "РќРµРїРѕРґРґРµСЂР¶РёРІР°РµРјС‹Р№ С„РѕСЂРјР°С‚ BMP. РџРѕРґРґРµСЂР¶РёРІР°СЋС‚СЃСЏ С‚РѕР»СЊРєРѕ 24 Рё 32 Р±РёС‚РЅС‹Рµ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ." << std::endl;
 			closeBMP();
 			return false;
 		}
 
-		// Выделение памяти для пиксельных данных
+		// Р’С‹РґРµР»РµРЅРёРµ РїР°РјСЏС‚Рё РґР»СЏ РїРёРєСЃРµР»СЊРЅС‹С… РґР°РЅРЅС‹С…
 		int dataSize = infoHeader.biWidth * infoHeader.biHeight * (infoHeader.biBitCount / 8);
 		pixelData = new unsigned char[dataSize];
 
-		// Переход к пиксельным данным
+		// РџРµСЂРµС…РѕРґ Рє РїРёРєСЃРµР»СЊРЅС‹Рј РґР°РЅРЅС‹Рј
 		bmpFile.seekg(fileHeader.bfOffBits, std::ios::beg);
 		bmpFile.read(reinterpret_cast<char*>(pixelData), dataSize);
 
@@ -36,42 +36,42 @@
 
 	void BMPReader::displayBMP()
 	{
-		int bytesPerPixel = infoHeader.biBitCount / 8;  // Количество байт на пиксель (3 для 24-битного BMP)
+		int bytesPerPixel = infoHeader.biBitCount / 8;  // РљРѕР»РёС‡РµСЃС‚РІРѕ Р±Р°Р№С‚ РЅР° РїРёРєСЃРµР»СЊ (3 РґР»СЏ 24-Р±РёС‚РЅРѕРіРѕ BMP)
 		int width = infoHeader.biWidth;
 		int height = infoHeader.biHeight;
 
-		// Вычисляем padding: строки в BMP выравниваются по границе в 4 байта
+		// Р’С‹С‡РёСЃР»СЏРµРј padding: СЃС‚СЂРѕРєРё РІ BMP РІС‹СЂР°РІРЅРёРІР°СЋС‚СЃСЏ РїРѕ РіСЂР°РЅРёС†Рµ РІ 4 Р±Р°Р№С‚Р°
 		int padding = (4 - (width * bytesPerPixel) % 4) % 4;
 
-		// Чтение строк изображения снизу вверх
+		// Р§С‚РµРЅРёРµ СЃС‚СЂРѕРє РёР·РѕР±СЂР°Р¶РµРЅРёСЏ СЃРЅРёР·Сѓ РІРІРµСЂС…
 		for (int y = height - 1; y >= 0; y--)
 		{
 			for (int x = 0; x < width; x++)
 			{
-				// Индекс пикселя с учётом padding
+				// РРЅРґРµРєСЃ РїРёРєСЃРµР»СЏ СЃ СѓС‡С‘С‚РѕРј padding
 				int index = y * (width * bytesPerPixel + padding) + (x * bytesPerPixel);
 
-				// Чтение компонентов цвета (синий, зеленый, красный)
+				// Р§С‚РµРЅРёРµ РєРѕРјРїРѕРЅРµРЅС‚РѕРІ С†РІРµС‚Р° (СЃРёРЅРёР№, Р·РµР»РµРЅС‹Р№, РєСЂР°СЃРЅС‹Р№)
 				unsigned char blue = pixelData[index];
 				unsigned char green = pixelData[index + 1];
 				unsigned char red = pixelData[index + 2];
 
-				// Отображаем пиксель на основе цвета
+				// РћС‚РѕР±СЂР°Р¶Р°РµРј РїРёРєСЃРµР»СЊ РЅР° РѕСЃРЅРѕРІРµ С†РІРµС‚Р°
 				if (red == 0 && green == 0 && blue == 0)
 				{
-					std::cout << "  ";  // Черный цвет
+					std::cout << "  ";  // Р§РµСЂРЅС‹Р№ С†РІРµС‚
 				}
 				else if (red == 255 && green == 255 && blue == 255)
 				{
-					std::cout << "оо";  // Белый цвет
+					std::cout << "РѕРѕ";  // Р‘РµР»С‹Р№ С†РІРµС‚
 				}
 				else
 				{
-					std::cout << "++";  // Цветной пиксель
+					std::cout << "++";  // Р¦РІРµС‚РЅРѕР№ РїРёРєСЃРµР»СЊ
 				}
 			}
 
-			std::cout << std::endl;  // Переход на следующую строку
+			std::cout << std::endl;  // РџРµСЂРµС…РѕРґ РЅР° СЃР»РµРґСѓСЋС‰СѓСЋ СЃС‚СЂРѕРєСѓ
 		}
 	}
 
@@ -80,11 +80,11 @@
 	{
 		if (!pixelData)
 		{
-			std::cout << "Данные изображения не загружены." << std::endl;
+			std::cout << "Р”Р°РЅРЅС‹Рµ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ РЅРµ Р·Р°РіСЂСѓР¶РµРЅС‹." << std::endl;
 			return;
 		}
 
-		std::cout << "Информация о BMP файле:" << std::endl;
+		std::cout << "РРЅС„РѕСЂРјР°С†РёСЏ Рѕ BMP С„Р°Р№Р»Рµ:" << std::endl;
 
 		// BITMAPFILEHEADER
 		std::cout << "  BITMAPFILEHEADER:" << std::endl;
