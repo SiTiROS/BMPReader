@@ -1,5 +1,11 @@
 ﻿#include "BMPReader.h"
 
+BMPReader::~BMPReader()
+{
+	closeBMP();
+}
+
+
 bool BMPReader::openBMP(const std::string& fileName)
 {
 	bmpFile.open(fileName, std::ios::binary);
@@ -23,8 +29,8 @@ bool BMPReader::openBMP(const std::string& fileName)
 	}
 
 	// Выделение памяти для пиксельных данных
-	int dataSize = infoHeader.biWidth * infoHeader.biHeight * (infoHeader.biBitCount / 8);
-	pixelData = new unsigned char[dataSize];
+	const int dataSize = infoHeader.biWidth * infoHeader.biHeight * (infoHeader.biBitCount / 8);
+	pixelData = new(std::nothrow) unsigned char[dataSize]; // new(std::nothrow) вместо исключения, теперь если память не выделяется вернётся nullptr
 
 	// Переход к пиксельным данным
 	bmpFile.seekg(fileHeader.bfOffBits, std::ios::beg);
@@ -34,14 +40,33 @@ bool BMPReader::openBMP(const std::string& fileName)
 }
 
 
-void BMPReader::displayBMP()
+void BMPReader::closeBMP()
 {
-	int bytesPerPixel = infoHeader.biBitCount / 8;  // Количество байт на пиксель (3 для 24-битного BMP)
-	int width = infoHeader.biWidth;
-	int height = infoHeader.biHeight;
+	if (pixelData)
+	{
+		delete[] pixelData;
+		pixelData = nullptr;
+	}
+	if (bmpFile.is_open())
+	{
+		bmpFile.close();
+	}
+}
+
+
+void BMPReader::displayBMP() const
+{
+	const int bytesPerPixel = infoHeader.biBitCount / 8;  // Количество байт на пиксель (3 для 24-битного BMP)
+	const int width = infoHeader.biWidth;
+	const int height = infoHeader.biHeight;
+
+	// Переменные для хранения RGB
+	unsigned char blue;
+	unsigned char green;
+	unsigned char red;
 
 	// Вычисляем padding: строки в BMP выравниваются по границе в 4 байта
-	int padding = (4 - (width * bytesPerPixel) % 4) % 4;
+	const int padding = (4 - (width * bytesPerPixel) % 4) % 4;
 
 	// Чтение строк изображения снизу вверх
 	for (int y = height - 1; y >= 0; y--)
@@ -52,9 +77,9 @@ void BMPReader::displayBMP()
 			int index = y * (width * bytesPerPixel + padding) + (x * bytesPerPixel);
 
 			// Чтение компонентов цвета (синий, зеленый, красный)
-			unsigned char blue = pixelData[index];
-			unsigned char green = pixelData[index + 1];
-			unsigned char red = pixelData[index + 2];
+			blue = pixelData[index];
+			green = pixelData[index + 1];
+			red = pixelData[index + 2];
 
 			// Отображаем пиксель на основе цвета
 			if (red == 0 && green == 0 && blue == 0)
@@ -70,13 +95,12 @@ void BMPReader::displayBMP()
 				std::cout << "++";  // Цветной пиксель
 			}
 		}
-
 		std::cout << std::endl;  // Переход на следующую строку
 	}
 }
 
 
-void BMPReader::displayBMPInfo()
+void BMPReader::displayBMPInfo() const
 {
 	if (!pixelData)
 	{
@@ -107,24 +131,4 @@ void BMPReader::displayBMPInfo()
 	std::cout << "    biYPelsPerMeter: " << infoHeader.biYPelsPerMeter << std::endl;
 	std::cout << "    biClrUsed: " << infoHeader.biClrUsed << std::endl;
 	std::cout << "    biClrImportant: " << infoHeader.biClrImportant << std::endl;
-}
-
-
-void BMPReader::closeBMP()
-{
-	if (pixelData)
-	{
-		delete[] pixelData;
-		pixelData = nullptr;
-	}
-	if (bmpFile.is_open())
-	{
-		bmpFile.close();
-	}
-}
-
-
-BMPReader::~BMPReader()
-{
-	closeBMP();
 }

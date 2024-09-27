@@ -3,7 +3,7 @@
 
 void setConsoleFont(const std::wstring& fontName, int fontSize)
 {
-	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+	const HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 	CONSOLE_FONT_INFOEX cfi = { sizeof(CONSOLE_FONT_INFOEX) };
 
 	if (GetCurrentConsoleFontEx(hConsole, FALSE, &cfi))
@@ -16,19 +16,20 @@ void setConsoleFont(const std::wstring& fontName, int fontSize)
 
 void setConsoleSize(int width, int height)
 {
-	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+	const HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 
 	// Устанавливаем размер буфера экрана
-	COORD newSize = { static_cast<SHORT>(width), static_cast<SHORT>(height) };
+	const COORD newSize = { static_cast<SHORT>(width), static_cast<SHORT>(height) };
 	SetConsoleScreenBufferSize(hConsole, newSize);
 
 	// Устанавливаем размер окна
-	SMALL_RECT windowSize = { 500, 500, static_cast<SHORT>(width - 1), static_cast<SHORT>(height - 1) };
+	const SMALL_RECT windowSize = { 500, 500, static_cast<SHORT>(width - 1), static_cast<SHORT>(height - 1) };
 	SetConsoleWindowInfo(hConsole, TRUE, &windowSize);
 }
 
 
-int main(int argc, char* argv[]) {
+int main(int argc, char* argv[])
+{
 	setlocale(LC_ALL, "Russian");
 	setConsoleFont(L"Consolas", 12);  // Устанавливаем шрифт Consolas размером 16
 	setConsoleSize(1000, 1000);       // Устанавливаем размеры буфера экрана и окна консоли чтобы не уезжали большие картинки
@@ -45,7 +46,6 @@ int main(int argc, char* argv[]) {
 	}
 	std::cout << "filePath:" << filePath << std::endl;
 
-
 	BMPReader bmpReader;
 	if (bmpReader.openBMP(filePath))
 	{
@@ -53,7 +53,6 @@ int main(int argc, char* argv[]) {
 		bmpReader.displayBMP();
 		bmpReader.closeBMP();
 	}
-
 
 	if (argc != 2)
 	{
@@ -63,3 +62,6 @@ int main(int argc, char* argv[]) {
 
 	return 0;
 }
+
+//TestData
+//D:/C++/BMPReader/TestImages/2.bmp

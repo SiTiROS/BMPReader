@@ -10,15 +10,15 @@ class BMPReader
 
 public:
 
+	~BMPReader();
+
 	bool openBMP(const std::string& fileName);
-
-	void displayBMP();
-
-	void displayBMPInfo();
 
 	void closeBMP();
 
-	~BMPReader();
+	void displayBMP() const;
+
+	void displayBMPInfo() const;
 
 private:
 	BITMAPFILEHEADER fileHeader;
